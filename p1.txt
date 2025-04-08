@@ -1,0 +1,50 @@
+import streamlit as st
+import numpy as np
+import pickle
+
+# Load the model
+model = pickle.load(open("heart_model.pkl", "rb"))  # Replace with your model file
+
+st.title("💓 Heart Attack Risk Predictor")
+
+st.markdown("Enter the following health data to check your heart attack risk:")
+
+# Get user input
+age = st.number_input("Age", min_value=1, max_value=120, value=45)
+sex = st.selectbox("Sex", options=["Male", "Female"])
+cp = st.selectbox("Chest Pain Type", options=[0, 1, 2, 3])
+trestbps = st.slider("Resting Blood Pressure (mm Hg)", 80, 200, 120)
+chol = st.slider("Serum Cholesterol (mg/dl)", 100, 400, 200)
+fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", options=["Yes", "No"])
+restecg = st.selectbox("Resting ECG results", options=[0, 1, 2])
+thalach = st.slider("Max Heart Rate Achieved", 60, 220, 150)
+exang = st.selectbox("Exercise Induced Angina", options=["Yes", "No"])
+oldpeak = st.slider("ST depression induced", 0.0, 6.0, 1.0, step=0.1)
+slope = st.selectbox("Slope of peak exercise ST segment", options=[0, 1, 2])
+ca = st.selectbox("Number of major vessels colored by fluoroscopy", options=[0, 1, 2, 3, 4])
+thal = st.selectbox("Thalassemia", options=[0, 1, 2, 3])
+
+# Convert inputs to numerical format
+input_data = np.array([
+    age,
+    1 if sex == "Male" else 0,
+    cp,
+    trestbps,
+    chol,
+    1 if fbs == "Yes" else 0,
+    restecg,
+    thalach,
+    1 if exang == "Yes" else 0,
+    oldpeak,
+    slope,
+    ca,
+    thal
+]).reshape(1, -1)
+
+# Predict
+if st.button("Predict"):
+    prediction = model.predict(input_data)
+    if prediction[0] == 1:
+        st.error("⚠️ High risk of heart attack. Please consult a doctor!")
+    else:
+        st.success("✅ Low risk of heart attack.")
